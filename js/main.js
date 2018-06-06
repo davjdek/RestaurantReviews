@@ -4,6 +4,9 @@ let restaurants,
 var map
 var markers = []
 
+
+(function() {navigator.serviceWorker.register('/sw.js');})();
+
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
@@ -126,8 +129,10 @@ resetRestaurants = (restaurants) => {
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
   const ul = document.getElementById('restaurants-list');
+  let focusIndex = 3;
   restaurants.forEach(restaurant => {
-    ul.append(createRestaurantHTML(restaurant));
+    ul.append(createRestaurantHTML(restaurant, focusIndex));
+	focusIndex+=1;
   });
   addMarkersToMap();
 }
@@ -135,10 +140,11 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
 /**
  * Create restaurant HTML.
  */
-createRestaurantHTML = (restaurant) => {
+createRestaurantHTML = (restaurant,focusIndex) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
+  image.alt=restaurant.alt_text;
   image.className = 'restaurant-img';
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   li.append(image);
@@ -157,6 +163,8 @@ createRestaurantHTML = (restaurant) => {
 
   const more = document.createElement('a');
   more.innerHTML = 'View Details';
+  more.setAttribute('aria-label', "view details for" + restaurant.name);
+  more.setAttribute('tabindex', focusIndex.toString());
   more.href = DBHelper.urlForRestaurant(restaurant);
   li.append(more)
 
